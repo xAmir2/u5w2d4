@@ -22,7 +22,7 @@ public record AuthorDTO(
         String email,
 
         @Past(message = "Date of birth must be in the past")
-        LocalDate dateOfBirth
+        LocalDate birthDate
 
 ) {
 }

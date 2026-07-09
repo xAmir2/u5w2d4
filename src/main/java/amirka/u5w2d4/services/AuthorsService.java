@@ -38,7 +38,7 @@ public class AuthorsService {
                 authorDTO.name(),
                 authorDTO.surname(),
                 authorDTO.email(),
-                authorDTO.dateOfBirth()
+                authorDTO.birthDate()
         );
 
         return authorsRepository.save(author);
@@ -77,7 +77,7 @@ public class AuthorsService {
         found.setName(authorDTO.name());
         found.setSurname(authorDTO.surname());
         found.setEmail(authorDTO.email());
-        found.setBirthDate(authorDTO.dateOfBirth());
+        found.setBirthDate(authorDTO.birthDate());
 
         return authorsRepository.save(found);
     }
