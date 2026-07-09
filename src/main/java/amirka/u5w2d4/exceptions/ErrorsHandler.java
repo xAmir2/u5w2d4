@@ -37,7 +37,7 @@ public class ErrorsHandler {
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST) // 400
-    public ErrorListDTO handleValidation(ValidationException ex) {
+    public ErrorListDTO handleValidation(ValidationEx ex) {
         return new ErrorListDTO(ex.getMessage(), LocalDateTime.now(), ex.getErrorsList());
     }
 
