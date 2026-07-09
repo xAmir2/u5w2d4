@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -76,5 +77,14 @@ public class AuthorsController {
     public void deleteAuthor(@PathVariable UUID authorId) {
 
         authorsService.findByIdAndDelete(authorId);
+    }
+
+    @PatchMapping("/{authorId}/avatar")
+    public Author updateAvatar(
+            @PathVariable UUID authorId,
+            @RequestParam("avatar") MultipartFile file
+    ) {
+
+        return authorsService.updateAvatar(authorId, file);
     }
 }

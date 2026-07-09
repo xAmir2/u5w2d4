@@ -2,17 +2,23 @@ package amirka.u5w2d4.services;
 
 import amirka.u5w2d4.entities.Author;
 import amirka.u5w2d4.exceptions.BadRequestEx;
+import amirka.u5w2d4.exceptions.FileUploadEx;
 import amirka.u5w2d4.exceptions.NotFoundEx;
 import amirka.u5w2d4.payloads.AuthorDTO;
 import amirka.u5w2d4.repositories.AuthorsRepository;
 import amirka.u5w2d4.repositories.PostsRepository;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -20,10 +26,12 @@ public class AuthorsService {
 
     private final AuthorsRepository authorsRepository;
     private final PostsRepository postsRepository;
+    private final Cloudinary fileUploader;
 
-    public AuthorsService(AuthorsRepository authorsRepository, PostsRepository postsRepository) {
+    public AuthorsService(AuthorsRepository authorsRepository, PostsRepository postsRepository, Cloudinary fileUploader) {
         this.authorsRepository = authorsRepository;
         this.postsRepository = postsRepository;
+        this.fileUploader = fileUploader;
     }
 
     public amirka.u5w2d4.entities.Author save(AuthorDTO authorDTO) {
@@ -90,5 +98,51 @@ public class AuthorsService {
         postsRepository.deleteAllByAuthor_Id(id);
 
         authorsRepository.delete(found);
+    }
+
+    public Author updateAvatar(UUID authorId, MultipartFile file) {
+
+        if (file.isEmpty()) {
+            throw new FileUploadEx("The uploaded file cannot be empty");
+        }
+
+        if (!file.getContentType()
+                .equals("image/gif")
+                && !file.getContentType()
+                .equals("image/jpeg")
+                && !file.getContentType()
+                .equals("image/png")) {
+
+            throw new FileUploadEx(
+                    "Only GIF, JPEG and PNG images are allowed"
+            );
+        }
+
+        if (file.getSize() > 5 * 1024 * 1024) {
+            throw new FileUploadEx(
+                    "The image cannot be bigger than 5MB"
+            );
+        }
+
+        Author author = authorsRepository.findById(authorId)
+                .orElseThrow(() -> new NotFoundEx(authorId));
+
+        try {
+
+            Map result = fileUploader.uploader()
+                    .upload(file.getBytes(), ObjectUtils.emptyMap());
+
+            String url = (String) result.get("secure_url");
+
+            author.setAvatar(url);
+
+            return authorsRepository.save(author);
+
+        } catch (IOException e) {
+
+            throw new FileUploadEx(
+                    "Error while uploading image"
+            );
+        }
     }
 }

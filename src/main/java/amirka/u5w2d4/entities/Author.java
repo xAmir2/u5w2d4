@@ -70,6 +70,10 @@ public class Author {
         return avatar;
     }
 
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
     @Override
     public String toString() {
         return "Author{" +
@@ -81,5 +85,7 @@ public class Author {
                 ", avatar='" + avatar + '\'' +
                 '}';
     }
+
+
 }
 

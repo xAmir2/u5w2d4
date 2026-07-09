@@ -2,12 +2,12 @@ package amirka.u5w2d4.exceptions;
 
 import amirka.u5w2d4.payloads.ErrorDTO;
 import amirka.u5w2d4.payloads.ErrorListDTO;
-import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -35,7 +35,7 @@ public class ErrorsHandler {
         );
     }
 
-    @ExceptionHandler(ValidationException.class)
+    @ExceptionHandler(ValidationEx.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST) // 400
     public ErrorListDTO handleValidation(ValidationEx ex) {
         return new ErrorListDTO(ex.getMessage(), LocalDateTime.now(), ex.getErrorsList());
@@ -65,6 +65,26 @@ public class ErrorsHandler {
 
         return new ErrorDTO(
                 "Internal server error. We are currently working on it.",
+                LocalDateTime.now()
+        );
+    }
+
+    @ExceptionHandler(FileUploadEx.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDTO handleFileUpload(FileUploadEx ex) {
+
+        return new ErrorDTO(
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDTO handleMaxUploadSize(MaxUploadSizeExceededException ex) {
+
+        return new ErrorDTO(
+                "File size exceeds the maximum allowed size",
                 LocalDateTime.now()
         );
     }
